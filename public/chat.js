@@ -110,7 +110,7 @@ const input = document.getElementById('input');
 if (form) {
     form.addEventListener('submit', (e) => {
         e.preventDefault();
-        if (input.value && socket && socket.connected) {
+        if (input.value && socket?.connected) {
             socket.emit('chat message', input.value);
             input.value = '';
             input.focus();
