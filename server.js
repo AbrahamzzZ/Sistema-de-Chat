@@ -43,7 +43,7 @@ setInterval(() => {
 }, 60000); 
 
 // 3. Lista de palabras prohibidas
-const forbiddenWords = ['puto', 'puta', 'verga', 'mierda', 'coño', 'carajo', 'chinga', 'pinche', 'cabron', 'idiota', 'estupido', 'imbecil'];
+const forbiddenWords = ['puto', 'puta', 'verga', 'mierda', 'coño', 'carajo', 'chinga', 'pinche', 'cabron', 'idiota', 'estupido', 'imbecil', 'hijo de puta', 'mamaverga', 'pija', 'pendejo'];
 
 function filterBadWords(text) {
     let filteredText = text;
@@ -58,7 +58,7 @@ function filterBadWords(text) {
 io.on('connection', (socket) => {
     console.log('🟢 Nuevo usuario conectado:', socket.id);
 
-    socket.on('user connected', (username) => {
+    socket.on('user connected', (username) => {Ñ
         // 1. Validar que el nombre no esté vacío
         if (!username || username.trim() === '') {
             socket.emit('auth error', 'El nombre de usuario no puede estar vacío');
