@@ -43,7 +43,7 @@ setInterval(() => {
 }, 60000); 
 
 // 3. Lista de palabras prohibidas
-const forbiddenWords = ['puto', 'puta', 'verga', 'mierda', 'coño', 'carajo', 'chinga', 'pinche', 'cabron', 'idiota', 'estupido', 'imbecil'];
+const forbiddenWords = ['puto', 'puta', 'verga', 'mierda', 'coño', 'carajo', 'chinga', 'pinche', 'cabron', 'idiota', 'estupido', 'imbecil', 'hijo de puta', 'mamaverga', 'pija', 'pendejo'];
 
 function filterBadWords(text) {
     let filteredText = text;
