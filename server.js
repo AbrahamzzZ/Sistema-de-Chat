@@ -58,7 +58,7 @@ function filterBadWords(text) {
 io.on('connection', (socket) => {
     console.log('🟢 Nuevo usuario conectado:', socket.id);
 
-    socket.on('user connected', (username) => {Ñ
+    socket.on('user connected', (username) => {
         // 1. Validar que el nombre no esté vacío
         if (!username || username.trim() === '') {
             socket.emit('auth error', 'El nombre de usuario no puede estar vacío');
