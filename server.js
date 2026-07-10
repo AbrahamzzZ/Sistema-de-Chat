@@ -9,6 +9,23 @@ app.use(express.static('public'));
 
 
 const users = {};
+const userActivity = {};
+const INACTIVE_TIMEOUT_MS = 2 * 60 * 1000;
+
+function broadcastUsersList() {
+    const usersPayload = Object.entries(users).map(([socketId, username]) => ({
+        username,
+        status: getUserStatus(socketId)
+    }));
+
+    io.emit('users list', usersPayload);
+}
+
+function getUserStatus(socketId) {
+    const lastActivity = userActivity[socketId];
+    if (!lastActivity) return 'active';
+    return Date.now() - lastActivity < INACTIVE_TIMEOUT_MS ? 'active' : 'inactive';
+}
 
 // 1. Rate limiting (evita spam de mensajes)
 const messageLimits = new Map(); 
@@ -89,14 +106,22 @@ io.on('connection', (socket) => {
         
         users[socket.id] = cleanUsername;
         socket.username = cleanUsername;
+        userActivity[socket.id] = Date.now();
         
         // 5. Registrar intento exitoso para auditoría
         console.log(`[${new Date().toISOString()}] Autenticación exitosa: ${cleanUsername} (${socket.id})`);
         socket.emit('auth success', cleanUsername);
-        io.emit('users list', Object.values(users));
+        broadcastUsersList();
         
         // Notificar que alguien se unió
         socket.broadcast.emit('system message', `✨ ${cleanUsername} se unió al chat`);
+    });
+
+    socket.on('user activity', () => {
+        if (socket.id) {
+            userActivity[socket.id] = Date.now();
+            broadcastUsersList();
+        }
     });
 
     socket.on('chat message', (msg) => {
@@ -121,6 +146,8 @@ io.on('connection', (socket) => {
         // 5. Filtrar palabras ofensivas
         cleanMsg = filterBadWords(cleanMsg);
         
+        userActivity[socket.id] = Date.now();
+
         // 6. Registrar mensaje para auditoría (integridad)
         console.log(`[${new Date().toISOString()}] 💬 ${socket.username}: ${cleanMsg.substring(0, 100)}`);
         
@@ -143,9 +170,10 @@ io.on('connection', (socket) => {
             
             // Eliminar de la lista de usuarios
             delete users[socket.id];
+            delete userActivity[socket.id];
             
             // Actualizar lista para todos
-            io.emit('users list', Object.values(users));
+            broadcastUsersList();
         } else {
             console.log(`[${new Date().toISOString()}] 🔴 Usuario no autenticado desconectado: ${socket.id}`);
         }
@@ -156,6 +184,10 @@ io.on('connection', (socket) => {
         }
     });
 });
+
+setInterval(() => {
+    broadcastUsersList();
+}, 15000);
 
 const PORT = process.env.PORT || 3000;
 server.listen(PORT, () => {

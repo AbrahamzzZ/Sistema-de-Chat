@@ -1,5 +1,66 @@
 let socket;
 let currentUser = '';
+let activityListenersAttached = false;
+
+function clearMessages() {
+    const messagesList = document.getElementById('messages');
+    if (messagesList) {
+        messagesList.innerHTML = '';
+    }
+}
+
+function showLoginScreen() {
+    const loginOverlay = document.getElementById('loginOverlay');
+    const chatContainer = document.getElementById('chatContainer');
+    const usernameInput = document.getElementById('usernameInput');
+
+    if (loginOverlay) loginOverlay.style.display = 'flex';
+    if (chatContainer) chatContainer.style.display = 'none';
+
+    if (usernameInput) {
+        usernameInput.value = '';
+        usernameInput.focus();
+    }
+}
+
+function resetChatState() {
+    currentUser = '';
+    clearMessages();
+    updateUsersList([]);
+    showLoginScreen();
+}
+
+function emitUserActivity() {
+    if (socket?.connected) {
+        socket.emit('user activity');
+    }
+}
+
+function attachActivityListeners() {
+    if (activityListenersAttached) return;
+
+    const inputField = document.getElementById('input');
+    const events = ['mousemove', 'keydown', 'scroll', 'click', 'touchstart'];
+
+    events.forEach((eventName) => {
+        document.addEventListener(eventName, emitUserActivity, { passive: true });
+    });
+
+    if (inputField) {
+        inputField.addEventListener('input', emitUserActivity);
+    }
+
+    activityListenersAttached = true;
+}
+
+function logoutFromChat() {
+    if (socket) {
+        socket.disconnect();
+    }
+
+    socket = null;
+    resetChatState();
+}
 
 function connectToChat() {
     const username = document.getElementById('usernameInput').value.trim();
@@ -10,6 +71,13 @@ function connectToChat() {
     }
     
     currentUser = username;
+    clearMessages();
+    attachActivityListeners();
+
+    if (socket && socket.connected) {
+        socket.disconnect();
+    }
+
     socket = io();
     
     // Escuchar errores de autenticación
@@ -20,14 +88,11 @@ function connectToChat() {
         document.getElementById('chatContainer').style.display = 'none';
     });
 
-    // Escuchar mensajes de sistema de seguridad (rate limiting)
-    socket.on('system message', (msg) => {
-        addSystemMessage(msg);
-    });
-    
     // Escuchar autenticación exitosa
     socket.on('auth success', (username) => {
         currentUser = username;
+        clearMessages();
+        emitUserActivity();
         document.getElementById('loginOverlay').style.display = 'none';
         document.getElementById('chatContainer').style.display = 'flex';
         document.getElementById('input').focus();
@@ -84,9 +149,29 @@ function addSystemMessage(msg) {
 function updateUsersList(users) {
     const usersList = document.getElementById('users-list');
     usersList.innerHTML = '';
-    users.forEach(user => {
+
+    users.forEach((user) => {
+        const normalizedUser = typeof user === 'string'
+            ? { username: user, status: 'active' }
+            : user;
+
         const li = document.createElement('li');
-        li.textContent = user;
+        li.className = 'user-item';
+
+        const statusDot = document.createElement('span');
+        statusDot.className = `user-status-dot ${normalizedUser.status || 'active'}`;
+
+        const userName = document.createElement('span');
+        userName.className = 'user-name';
+        userName.textContent = normalizedUser.username || normalizedUser.name || 'Usuario';
+
+        const statusLabel = document.createElement('span');
+        statusLabel.className = 'user-status-label';
+        statusLabel.textContent = normalizedUser.status === 'inactive' ? 'Inactivo' : 'Activo';
+
+        li.appendChild(statusDot);
+        li.appendChild(userName);
+        li.appendChild(statusLabel);
         usersList.appendChild(li);
     });
 }
@@ -106,6 +191,11 @@ function escapeHtml(str) {
 // Enviar mensajes
 const form = document.getElementById('form');
 const input = document.getElementById('input');
+const logoutBtn = document.getElementById('logoutBtn');
+
+if (logoutBtn) {
+    logoutBtn.addEventListener('click', logoutFromChat);
+}
 
 if (form) {
     form.addEventListener('submit', (e) => {

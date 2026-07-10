@@ -30,13 +30,34 @@ body {
     background: #EEF2F5;
     border-right: 1px solid #D8E1E8;
     padding: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.users-panel-header {
+    margin-bottom: 20px;
 }
 
 .users-panel h3 {
     color: #475569;
-    margin-bottom: 20px;
     font-size: 1rem;
     font-weight: 600;
+}
+
+.logout-btn {
+    margin-top: auto;
+    padding: 10px 12px;
+    background: #ef4444;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    cursor: pointer;
+    font-size: 0.85rem;
+    font-weight: 600;
+}
+
+.logout-btn:hover {
+    background: #dc2626;
 }
 
 #users-list {
@@ -51,10 +72,38 @@ body {
     border: 1px solid #E2E8F0;
     color: #475569;
     transition: all .2s ease;
+    display: flex;
+    align-items: center;
+    gap: 8px;
 }
 
 #users-list li:hover {
     background: #F8FAFC;
+}
+
+.user-status-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.user-status-dot.active {
+    background: #22c55e;
+}
+
+.user-status-dot.inactive {
+    background: #f59e0b;
+}
+
+.user-name {
+    flex: 1;
+    font-weight: 600;
+}
+
+.user-status-label {
+    font-size: 0.75rem;
+    color: #64748b;
 }
 
 .chat-area {
