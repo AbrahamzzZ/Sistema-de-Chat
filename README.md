@@ -11,6 +11,8 @@ Sistema de chat en tiempo real que permite la comunicación instantánea entre m
 * Notificaciones de entrada/salida de usuarios
 * Timestamps en cada mensaje
 * Diferenciación visual entre mensajes propios y de otros usuarios
+* Botón de cerrar sesión para salir del chat de forma ordenada
+* Indicador de estado visible: verde para activo y naranja para inactivo tras 2 minutos sin interacción
 
 ## Tecnologías Utilizadas
 
@@ -55,7 +57,7 @@ http://localhost:3000
 ```text
 Sistema-de-Chat/
 ├── public/
-│   │── style.css
+│   ├── style.css
 │   ├── chat.js
 │   └── index.html
 ├── server.js
@@ -68,9 +70,9 @@ Sistema-de-Chat/
 
 | Archivo/Carpeta        | Descripción                    |
 | ---------------------- | ------------------------------ |
-| `public/css/style.css` | Estilos de la interfaz         |
-| `public/js/chat.js`    | Lógica del cliente             |
-| `public/index.html`    | Página principal               |
+| `public/style.css`    | Estilos de la interfaz         |
+| `public/chat.js`      | Lógica del cliente             |
+| `public/index.html`   | Página principal               |
 | `server.js`            | Servidor Node.js con Socket.IO |
 | `package.json`         | Dependencias y scripts         |
 | `.gitignore`           | Archivos ignorados por Git     |
@@ -88,11 +90,15 @@ Escribe tu mensaje en el campo de texto y presiona **Enviar**.
 
 ### Ver Usuarios Conectados
 
-La lista de usuarios conectados se muestra en el panel lateral.
+La lista de usuarios conectados se muestra en el panel lateral, junto con un punto de estado que indica si están activos o inactivos.
 
 ### Salir
 
-Simplemente cierra la pestaña o ventana del navegador.
+Puedes cerrar la sesión con el botón de "Cerrar sesión" o simplemente cerrar la pestaña o ventana del navegador.
+
+### Estado de actividad
+
+Si un usuario no interactúa con la página durante aproximadamente 2 minutos, su estado pasa a inactivo y se muestra con color naranja. La actividad del mouse, teclado, scroll y mensajes recientes lo vuelven a activar.
 
 ## Despliegue en la Nube
 
